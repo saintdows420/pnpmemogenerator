@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PNP Memorandum Generator</title>
+<!-- Data stays in this browser (localStorage). See README.md for the file layout. -->
+<meta name="theme-color" content="#1e3a8a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PNP Memo">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/app.css?v=7">
+<link rel="stylesheet" href="css/document.css?v=7">
+<style id="pg"></style>
+</head>
+<body data-view="edit">
+<dialog id="histDlg">
+  <div class="histHead"><h2>History <span id="histCount" class="msg"></span></h2><button type="button" class="ghost" id="histClose">Close</button></div>
+  <p class="msg">Your memorandums, newest first. A memo is added when you download its PDF, print it, or start a new one. They are kept in this browser only.</p>
+  <input id="histQ" type="search" placeholder="Search subject or name&hellip;" autocomplete="off" aria-label="Search history">
+  <div id="histList" class="histList"></div>
+  <div class="dlgbtns"><button type="button" class="ghost" id="histClear">Clear all history</button></div>
+</dialog>
+<dialog id="a2hsDlg">
+  <h2>Add to Home Screen</h2>
+  <p class="msg">Put this app on your phone&rsquo;s home screen so it opens like a normal app, with its own icon.</p>
+  <p><b>Android (Chrome)</b></p>
+  <ol><li>Tap the <b>&#8942;</b> menu at the top right.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Tap <b>Install</b>.</li></ol>
+  <p><b>iPhone / iPad (Safari)</b></p>
+  <ol><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol>
+  <p class="msg">On iPhone this works only in Safari, not inside Facebook, Messenger or other in-app browsers.</p>
+  <p class="msg warn"><b>Note:</b> this works when the app is opened from its web link (https://&hellip;), not from a downloaded file. Open the link you were given, then follow the steps above.</p>
+  <div class="dlgbtns"><button type="button" class="sec" id="a2hsInstall" hidden>Install now</button><button type="button" class="ghost" id="a2hsClose">Close</button></div>
+</dialog>
+<dialog id="aiDlg">
+  <h2>Writing help from ChatGPT</h2>
+  <p class="msg">This app has no built-in AI. ChatGPT is a separate website, free to open. Here is how to use it for your memo:</p>
+  <ol>
+    <li>Write or paste your draft in the body text box first.</li>
+    <li>Choose what you need: <select id="aiTask">
+      <option value="Rewrite the text below in a formal, professional tone suitable for an official police memorandum. Keep every fact, name, date and number exactly as written. Do not add new information.">Make it formal</option>
+      <option value="Correct the grammar, spelling and punctuation of the text below. Do not change the meaning or the facts.">Fix grammar and spelling</option>
+      <option value="Make the text below shorter and clearer. Keep every important fact, name, date and number. Do not add new information.">Make it shorter</option>
+      <option value="Rewrite the text below in simple, clear language that is easy to understand. Keep every fact exactly as written.">Make it simpler</option>
+      <option value="Translate the text below into Filipino. Keep names, dates, numbers and ranks unchanged.">Translate to Filipino</option>
+      <option value="Translate the text below into English. Keep names, dates, numbers and ranks unchanged.">Translate to English</option>
+      <option value="Turn the notes below into a well-organized official memorandum body with numbered paragraphs. Use only the facts given; do not invent details.">Turn my notes into memo paragraphs</option>
+    </select></li>
+    <li id="aiStepGo">Click <b>Copy &amp; open ChatGPT</b>. Your request and your text are copied, and chatgpt.com opens in a new tab.</li>
+    <li id="aiStepPaste">In ChatGPT, click the message box, press <b>Ctrl+V</b> (Cmd+V on Mac), then Enter.</li>
+    <li id="aiStepBack">Copy ChatGPT&rsquo;s answer, come back here and paste it into the body text box.</li>
+  </ol>
+  <p class="msg warn"><b>Be careful:</b> memorandums may be CONFIDENTIAL. ChatGPT is a public service, so remove names of victims, witnesses, suspects, case numbers and other sensitive details before pasting, and follow your unit&rsquo;s rules on using AI tools.</p>
+  <div class="dlgbtns"><button type="button" class="sec" id="aiGo">Copy &amp; open ChatGPT</button><button type="button" class="sec" id="aiOpen">Just open ChatGPT</button><button type="button" class="ghost" id="aiClose">Close</button></div>
+</dialog>
+<header class="bar">
+  <h1>PNP Memorandum</h1>
+  <span class="hbtns">
+    <button type="button" id="histBtn" class="hb" title="Memorandums you made before">History</button>
+    <button type="button" id="pdfBtn">Download PDF</button>
+    <button type="button" id="a2hsBtn" class="hb" title="Add this app to your phone's home screen">Add to Home Screen</button>
+    <button type="button" id="aiBtn" class="hb" title="Get writing help from ChatGPT">AI Help</button>
+    <button type="button" id="printBtn" class="hb">Print</button>
+    <button type="button" id="themeBtn" class="hb" title="Switch dark / light mode">Dark</button>
+    <button type="button" id="logoutBtn" class="hb" hidden>Sign out</button>
+  </span>
+</header>
+
+<div class="ribbon">
+  <div class="rtabs" role="tablist">
+    <button type="button" class="rt on" data-tab="home">Home</button>
+    <button type="button" class="rt" data-tab="insert">Insert</button>
+    <button type="button" class="rt" data-tab="table">Table</button>
+    <button type="button" class="rtog" id="ribToggle" title="Hide the ribbon" aria-expanded="true">&#9650;</button>
+  </div>
+  <div class="rpanel" id="tab-home">
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" data-c="undo" title="Undo (Ctrl+Z)">&#8630;</button>
+      <button type="button" class="rb" data-c="redo" title="Redo (Ctrl+Y)">&#8631;</button>
+      <button type="button" class="rb" data-c="removeFormat" title="Clear formatting">Clear</button>
+    </div><div class="gl">Edit</div></div>
+    <div class="grp"><div class="gi">
+      <select id="fFont" title="Font style"><option>Arial</option><option>Times New Roman</option><option>Courier New</option><option>Calibri</option><option>Cambria</option><option>Verdana</option><option>Tahoma</option><option>Georgia</option><option>Garamond</option><option>Century Gothic</option><option>Bookman Old Style</option></select>
+      <select id="fSize" title="Font size (pt)"></select>
+    </div><div class="gl">Font</div></div>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" data-c="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button type="button" class="rb" data-c="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="rb" data-c="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+      <button type="button" class="rb" data-c="strikeThrough" title="Strikethrough"><s>S</s></button>
+      <button type="button" class="rb" data-c="subscript" title="Subscript">x<sub>2</sub></button>
+      <button type="button" class="rb" data-c="superscript" title="Superscript">x<sup>2</sup></button>
+    </div><div class="gl">Style</div></div>
+    <div class="grp"><div class="gi">
+      <span class="split"><button type="button" class="rb cbtn" id="fColorBtn" title="Font color: apply the current color"><b>A</b><i id="fColorBar"></i></button><button type="button" class="rb carr" id="fColorArr" title="Font color: choose a color" aria-label="Choose font color">&#9662;</button></span>
+      <span class="split"><button type="button" class="rb cbtn" id="fHiBtn" title="Highlight: apply the current color"><span class="hlab">ab</span><i id="fHiBar" style="background:#ffff00"></i></button><button type="button" class="rb carr" id="fHiArr" title="Highlight: choose a color" aria-label="Choose highlight color">&#9662;</button></span>
+      <input type="color" id="fColor" value="#000000" class="hiddenColor" tabindex="-1" aria-hidden="true">
+      <input type="color" id="fHi" value="#ffff00" class="hiddenColor" tabindex="-1" aria-hidden="true">
+    </div><div class="gl">Color</div></div>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" data-c="justifyLeft" title="Align left">&#8676; Left</button>
+      <button type="button" class="rb" data-c="justifyCenter" title="Center">Center</button>
+      <button type="button" class="rb" data-c="justifyRight" title="Align right">Right &#8677;</button>
+      <button type="button" class="rb" data-c="justifyFull" title="Justify">Justify</button>
+    </div><div class="gl">Alignment</div></div>
+    <div class="grp"><div class="gi">
+      <select id="fList" title="Bullets and numbering"><option value="">List&hellip;</option><option value="bullet">&bull; Bullet</option><option value="1">1. 2. 3. Number</option><option value="a">a. b. c. Letter</option><option value="A">A. B. C. Capital letter</option><option value="i">i. ii. iii. Roman numeral</option><option value="I">I. II. III. Capital roman</option><option value="none">No list</option></select>
+      <select id="fLine" title="Line spacing"><option value="">Spacing&hellip;</option><option value="1">1.0</option><option value="1.15">1.15</option><option value="1.5">1.5</option><option value="2">2.0</option></select>
+      <button type="button" class="rb" data-c="outdent" title="Decrease indent (Shift+Tab)">&#8676;</button>
+      <button type="button" class="rb" data-c="indent" title="Increase indent (Tab)">&#8677;</button>
+    </div><div class="gl">Paragraph</div></div>
+  </div>
+  <div class="rpanel" id="tab-insert" hidden>
+    <div class="grp"><div class="gi">
+      <label class="rl" for="tRows">Rows</label><input id="tRows" type="number" min="1" max="20" value="3">
+      <label class="rl" for="tCols">Columns</label><input id="tCols" type="number" min="1" max="6" value="3">
+      <button type="button" class="rb" id="tIns">Insert Table</button>
+    </div><div class="gl">Table</div></div>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" id="fileIns" title="Insert the text of a .docx, .txt, .md, .csv or .html file">Insert File&hellip;</button>
+      <input type="file" id="docFile" accept=".docx,.txt,.md,.csv,.html,.htm,text/plain" hidden>
+    </div><div class="gl">File (text)</div></div>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" id="imgUpload" title="PNG, JPEG or WebP">Insert Image&hellip;</button>
+      <input type="file" id="imgFile" accept="image/png,image/jpeg,image/webp" hidden>
+    </div><div class="gl">Picture</div></div>
+    <div class="grp" id="picTools"><div class="gi">
+      <label class="rl" for="picW">Width</label>
+      <input type="range" id="picW" min="5" max="100" value="50" aria-label="Image width, percent of text width">
+      <input type="number" id="picWn" min="5" max="100" value="50" aria-label="Image width percent"><span class="rl">%</span>
+      <button type="button" class="rb" data-pa="left" title="Align left">Left</button>
+      <button type="button" class="rb" data-pa="center" title="Center">Center</button>
+      <button type="button" class="rb" data-pa="right" title="Align right">Right</button>
+      <button type="button" class="rb" id="picReset" title="Put the image back in its normal place">Reset position</button>\n      <button type="button" class="rb" id="picReplace">Replace</button>
+      <button type="button" class="rb danger" id="picRemove">Remove</button>
+    </div><div class="gl" id="picHint">Click an image in the text to edit it</div></div>
+  </div>
+  <div class="rpanel" id="tab-table" hidden>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" data-t="addRow">+ Row</button>
+      <button type="button" class="rb" data-t="addCol">+ Column</button>
+      <button type="button" class="rb" data-t="delRow">Delete Row</button>
+      <button type="button" class="rb" data-t="delCol">Delete Column</button>
+      <button type="button" class="rb" data-t="delTable">Delete Table</button>
+    </div><div class="gl">Rows &amp; Columns (click inside a table cell first)</div></div>
+    <div class="grp"><div class="gi">
+      <button type="button" class="rb" data-t="eqCols" title="Make all columns the same width">Equal Widths</button>
+    </div><div class="gl">Column width: drag a column border</div></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="form">
+    <label for="cls">CLASSIFICATION</label><select id="cls"></select>
+    <label for="forLbl">LABEL</label><select id="forLbl"><option value="FOR">FOR</option><option value="TO">TO</option></select>
+    <input id="to" autocomplete="off" aria-label="FOR or TO name">
+    <label for="attn">OPTIONAL</label><input id="attn" placeholder="Attainment" autocomplete="off">
+    <label for="from">FROM</label><input id="from" autocomplete="off">
+    <label for="subject">SUBJECT</label><input id="subject" autocomplete="off">
+    <label for="date">DATE</label><input id="date" type="date">
+    <label for="fname">FILE NAME (OPTIONAL)</label><input id="fname" placeholder="Leave blank to use the Subject" autocomplete="off">
+    <div id="secs" style="margin-top:12px"></div>
+    <button type="button" class="sec" id="addSec" style="margin-top:8px">+ Add Body Text</button>
+    <div class="msg">Use the ribbon at the top: Home (text), Insert (table, picture), Table (rows and columns).</div>
+    <details>
+      <summary>Signatory</summary>
+      <label for="sname">Name</label><input id="sname" placeholder="Name of the signatory" autocomplete="off">
+      <label for="srank">Rank</label><input id="srank" placeholder="Rank / position" autocomplete="off">
+    </details>
+
+    <div id="dbBox"><div class="bar"><button type="button" class="sec" id="newBtn">New memorandum</button></div></div>
+  </section>
+
+  <section class="preview" aria-label="Memorandum preview"><div id="docHost"></div></section>
+</div>
+
+<nav class="viewSwitch" id="viewSwitch" aria-label="Switch between editing and preview">
+  <button type="button" data-v="edit" class="on"><span class="ic">&#9998;</span> Edit</button>
+  <button type="button" data-v="preview"><span class="ic">&#128196;</span> Preview</button>
+  <button type="button" id="histBtn2"><span class="ic">&#128339;</span> History</button>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
+<div id="loginBox" hidden>
+  <form id="loginForm" autocomplete="off">
+    <h2>Sign in</h2>
+    <div class="msg">Enter the access code for this system.</div>
+    <input type="text" name="username" autocomplete="username" value="pnp" hidden>
+    <label for="loginCode">Access code</label><input id="loginCode" type="password" autocomplete="current-password" required>
+    <div class="msg err" id="loginMsg"></div>
+    <button type="submit" class="sec" style="margin-top:10px">Sign in</button>
+  </form>
+</div>
+
+<div id="palette" class="palette" hidden></div>
+<script src="js/util.js?v=7"></script>
+<script src="js/assets.js?v=7"></script>
+<script src="js/sanitize.js?v=7"></script>
+<script src="js/doc.js?v=7"></script>
+<script src="js/api.js?v=7"></script>
+<script src="js/standalone.js?v=7"></script>
+<script src="js/editor.js?v=7"></script>
+<script src="js/images.js?v=7"></script>
+<script src="js/store.js?v=7"></script>
+<script src="js/history.js?v=7"></script>
+<script src="js/main.js?v=7"></script>
+</body>
+</html>

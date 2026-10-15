@@ -1,0 +1,261 @@
+/* ===== Application UI (kept visually consistent with the original design) ===== */
+:root{--bg:#f3f4f6;--panel:#fff;--ink:#111827;--mute:#6b7280;--line-c:#d1d5db;--accent:#1e3a8a;--ok:#166534;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--panel:#1a1d24;--ink:#e5e7eb;--mute:#9ca3af;--line-c:#343a46;--accent:#3b5bdb;--ok:#4ade80;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#0f1115;--panel:#1a1d24;--ink:#e5e7eb;--mute:#9ca3af;--line-c:#343a46;--accent:#3b5bdb;--ok:#4ade80;--bad:#f87171}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.bar{flex-wrap:wrap;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 20px;background:var(--accent);color:#fff}
+header.bar h1{font-size:16px;margin:0}
+.hbtns{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:6px;border:0;background:#fff;color:#1e3a8a;font-weight:600;padding:7px 12px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.hb{background:transparent;color:#fff;border:1px solid #fff}
+.status{font-size:12px;opacity:.95}
+.wrap{display:grid;grid-template-columns:minmax(300px,390px) 1fr;gap:16px;padding:16px;max-width:1350px;margin:auto}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}}
+.form{background:var(--panel);border:1px solid var(--line-c);border-radius:10px;padding:14px;align-self:start}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 3px}
+.form>label:first-child{margin-top:0}
+input,textarea,select{width:100%;font:inherit;padding:7px 9px;border:1px solid var(--line-c);border-radius:6px;background:var(--bg);color:var(--ink)}
+textarea{min-height:110px;resize:vertical}
+details{margin-top:14px;font-size:13px;color:var(--mute)}
+details summary{cursor:pointer}
+.preview{overflow-x:auto}
+button.sec{background:var(--accent);color:#fff;padding:6px 10px;font-size:13px}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line-c);padding:3px 8px;font-size:12px;font-weight:500}
+button.danger{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2>div>label:first-child{margin-top:0}
+.bsec{margin-top:10px}.bsec:first-child{margin-top:0}
+.bsec label{margin-top:0}
+.secbar{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.secbar select{flex:1;min-width:150px;width:auto;padding:6px 8px;font-size:13px}
+.msg{font-size:12px;color:var(--mute);min-height:1.2em;margin-top:6px}
+.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
+
+/* editing surface */
+.bodyEd{min-height:140px;border:1px solid var(--line-c);border-radius:6px;padding:8px;background:var(--bg);color:var(--ink);font:11pt/1.3 Arial,Helvetica,sans-serif;overflow:auto;white-space:pre-wrap;outline:none}
+/* lists: marker sits on the left edge of the text, wrapped lines hang .35in in */
+.body ul,.body ol,.bodyEd ul,.bodyEd ol{margin:0;padding:0;list-style:none;counter-reset:li}
+.body li,.bodyEd li{position:relative;padding-left:.35in;counter-increment:li}
+.body li::before,.bodyEd li::before{position:absolute;left:0;content:counter(li,decimal) '.'}
+.body ul>li::before,.bodyEd ul>li::before{content:'\2022'}
+.body ol[type=a]>li::before,.bodyEd ol[type=a]>li::before{content:counter(li,lower-alpha) '.'}
+.body ol[type=A]>li::before,.bodyEd ol[type=A]>li::before{content:counter(li,upper-alpha) '.'}
+.body ol[type=i]>li::before,.bodyEd ol[type=i]>li::before{content:counter(li,lower-roman) '.'}
+.body [data-ind],.bodyEd [data-ind]{margin-left:.5in}
+.body [data-ind="2"],.bodyEd [data-ind="2"]{margin-left:1.0in}
+.body [data-ind="3"],.bodyEd [data-ind="3"]{margin-left:1.5in}
+.body [data-ind="4"],.bodyEd [data-ind="4"]{margin-left:2.0in}
+.body [data-ind="5"],.bodyEd [data-ind="5"]{margin-left:2.5in}
+.body [data-ind="6"],.bodyEd [data-ind="6"]{margin-left:3.0in}
+.body ol[type=I]>li::before,.bodyEd ol[type=I]>li::before{content:counter(li,upper-roman) '.'}
+.bodyEd:focus{border-color:var(--accent)}
+.bodyEd table{border-collapse:collapse;width:100%;table-layout:fixed;margin:2px 0}
+.bodyEd td,.bodyEd th{border:1px solid #888;padding:3px 5px;vertical-align:top;overflow-wrap:anywhere}
+.bodyEd img{cursor:pointer;border-radius:2px}
+.bodyEd img.sel{outline:3px solid var(--accent);outline-offset:1px}
+.bodyEd img[data-x],.bodyEd img[data-y]{left:0!important;top:0!important}   /* offsets show only on the page preview */
+.pages .clip img{cursor:grab;touch-action:none}
+.pages .clip img.drag{cursor:grabbing;outline:2px dashed var(--accent)}
+
+/* ribbon */
+.ribbon{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line-c)}
+.rtabs{display:flex;gap:2px;padding:6px 12px 0;background:var(--bg);overflow-x:auto}
+.rt{background:transparent;color:var(--mute);border:0;border-bottom:3px solid transparent;border-radius:0;padding:6px 14px;font-weight:600;white-space:nowrap}
+.rt.on{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel)}
+.rpanel{display:flex;flex-wrap:wrap;padding:6px 12px 4px;align-items:stretch}
+.rpanel[hidden]{display:none}
+.grp{padding:0 12px;border-right:1px solid var(--line-c);display:flex;flex-direction:column;justify-content:space-between}
+.grp:first-child{padding-left:0}.grp:last-child{border-right:0}
+.gi{display:flex;gap:5px;align-items:center;flex-wrap:wrap;min-height:34px}
+.gl{font-size:11px;color:var(--mute);text-align:center;padding-top:2px}
+.rl{font-size:12px;color:var(--mute);margin:0}
+.ribbon select,.ribbon .rb{padding:5px 8px;font-size:13px;border:1px solid var(--line-c);background:var(--bg);color:var(--ink);border-radius:6px;font-weight:600;width:auto}
+.ribbon input[type=number]{width:62px;padding:5px 6px}
+.ribbon input[type=range]{width:130px;padding:0;border:0;background:transparent}
+.ribbon input[type=color]{width:34px;height:30px;padding:1px;border:1px solid var(--line-c);border-radius:6px;background:var(--bg)}
+.rb.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.picoff{opacity:.45;pointer-events:none}
+
+/* saved memos */
+#dbBox{margin-top:16px;border-top:1px solid var(--line-c);padding-top:12px}
+#dbBox .bar{display:flex;gap:6px;flex-wrap:wrap}
+.item{border:1px solid var(--line-c);border-radius:8px;padding:8px;margin-top:8px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.item.cur{border-color:var(--accent)}
+.item .tt{font-weight:600;font-size:13px;overflow-wrap:anywhere}
+.item .sb{font-size:12px;color:var(--mute);overflow-wrap:anywhere}
+.item .ac{display:flex;gap:4px;flex:none}
+.pill{display:inline-block;font-size:10px;border:1px solid var(--line-c);border-radius:99px;padding:0 6px;margin-left:4px;vertical-align:middle;color:var(--mute)}
+
+/* AI help dialog */
+dialog#aiDlg,dialog#a2hsDlg{border:1px solid var(--line-c);border-radius:12px;max-width:540px;width:92vw;background:var(--panel);color:var(--ink);padding:18px}
+dialog#aiDlg::backdrop{background:rgba(15,17,21,.6)}
+dialog h2{margin:0 0 6px;font-size:17px}dialog ol{padding-left:20px;margin:8px 0}dialog li{margin:6px 0}dialog#a2hsDlg::backdrop{background:rgba(15,17,21,.6)}dialog#a2hsDlg .warn{color:var(--bad)}#aiDlg select{width:auto;max-width:100%}
+#aiDlg .warn{color:var(--bad)}.dlgbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+/* toast + login */
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;max-width:92vw;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.toast[hidden]{display:none}
+#loginBox{position:fixed;inset:0;background:rgba(15,17,21,.65);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+#loginBox[hidden]{display:none}
+#loginBox form{background:var(--panel);padding:20px;border-radius:12px;width:min(360px,100%)}
+#loginBox h2{margin:0 0 4px;font-size:17px}
+
+@media (max-width:600px){
+  .rpanel{overflow-x:auto;flex-wrap:nowrap}
+  .grp{flex:none}
+  .wrap{padding:10px;gap:12px}
+  header.bar{padding:10px 12px}
+  input,textarea,select{font-size:16px}
+  button{padding:10px 14px}
+  
+}
+
+.ribbon .rb.danger{color:var(--bad)}
+
+/* date + classification helpers, ribbon hide/show */
+.clsRow,.dateRow{display:flex;gap:6px}.clsRow select,.dateRow input{flex:1;min-width:0}
+.clsRow input[type=color]{width:46px;flex:none;padding:2px;cursor:pointer}
+.dateRow input{cursor:pointer}.dateRow button{flex:none;white-space:nowrap}
+.rtog{margin-left:auto;background:transparent;color:var(--mute);border:0;border-radius:0;padding:6px 14px;font-size:14px;flex:none}
+.ribbon.collapsed .rpanel{display:none!important}
+
+/* colour swatches (classification colour, ribbon font colour / highlight) */
+.swRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 8px}
+button.sw{width:30px;height:30px;min-width:0;min-height:0;padding:0;border-radius:50%;border:2px solid var(--line-c);cursor:pointer}
+@media (pointer:coarse){button.sw{width:36px;height:36px;min-height:0}}
+button.sw.on{outline:3px solid var(--accent);outline-offset:2px}
+.swRow input[type=color]{width:38px;height:30px;padding:1px;flex:none;cursor:pointer}
+.swMore{font-size:12px;color:var(--mute)}
+.palette{position:fixed;z-index:60;width:236px;background:var(--panel);border:1px solid var(--line-c);border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.palette .swRow{margin:0 0 8px}.palette .pmore{width:100%;margin-top:4px}
+.cbtn{position:relative;font-weight:700}.cbtn i{position:absolute;left:7px;right:7px;bottom:3px;height:3px;border-radius:2px;background:#000}
+.hlab{background:#fff59d;color:#000;padding:0 3px;border-radius:2px}
+.hiddenColor{position:absolute;opacity:0;width:0;height:0;border:0;padding:0;pointer-events:none}
+
+/* Word-style colour menu and its buttons */
+.palette{width:max-content;max-width:94vw;padding:8px}
+.palette[hidden]{display:none}
+.cmTitle{font-size:12px;font-weight:600;color:var(--mute);margin:8px 2px 4px}
+.cmGrid{display:grid;grid-template-columns:repeat(10,22px);gap:3px}
+button.cmSw{width:22px;height:22px;min-width:0;min-height:0;padding:0;border:1px solid rgba(0,0,0,.28);border-radius:3px;cursor:pointer}
+button.cmSw:hover,button.cmSw:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.cmSw.on{outline:2px solid var(--accent);outline-offset:1px;box-shadow:inset 0 0 0 2px #fff}
+@media (pointer:coarse){button.cmSw{min-width:24px}}
+button.cmItem{display:flex;align-items:center;gap:8px;width:100%;justify-content:flex-start;text-align:left;background:transparent;color:var(--ink);border:0;border-radius:4px;padding:6px;min-height:0;font-size:13px;font-weight:500}
+button.cmItem:hover{background:var(--bg)}
+.cmChip{width:18px;height:18px;border:1px solid rgba(0,0,0,.35);border-radius:3px;flex:none;background:linear-gradient(135deg,transparent 45%,#d33 45%,#d33 55%,transparent 55%),#fff}
+.split{display:inline-flex}.split .cbtn{border-top-right-radius:0;border-bottom-right-radius:0}
+.split .carr{border-top-left-radius:0;border-bottom-left-radius:0;padding:0 6px;min-width:0;margin-left:-1px;font-size:12px}
+.clsColorWrap{position:relative;margin-bottom:8px}
+button.colorSel{display:flex;align-items:center;gap:10px;width:100%;justify-content:flex-start;padding:8px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line-c);border-radius:8px;font:inherit;font-weight:500;cursor:pointer}
+button.colorSel .chip{width:22px;height:22px;border-radius:4px;border:1px solid rgba(0,0,0,.3);flex:none}
+button.colorSel .caret{margin-left:auto;color:var(--mute)}
+.clsColorWrap .hiddenColor{left:20px;top:100%}
+/* calendar icon inside the date box: bigger target, white in dark mode, normal in light mode */
+input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;padding:4px}
+:root[data-theme="dark"] input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1)}}
+
+/* drag handles over table column borders */
+#colHandles .colH{position:fixed;width:14px;z-index:45;cursor:col-resize;touch-action:none;background:linear-gradient(to right,transparent 6px,var(--accent) 6px,var(--accent) 8px,transparent 8px);opacity:.35}
+#colHandles .colH:hover,#colHandles .colH.on{opacity:1}
+@media (pointer:coarse){#colHandles .colH{width:24px;background:linear-gradient(to right,transparent 11px,var(--accent) 11px,var(--accent) 13px,transparent 13px);opacity:.6}}
+
+@media print{#colHandles{display:none!important}}
+
+/* the top bar follows you while scrolling; the ribbon sticks right under it */
+header.bar{position:sticky;top:0;z-index:30}
+.ribbon{top:var(--barH,0px)}
+@media (max-width:600px){
+  header.bar{flex-direction:column;align-items:stretch;gap:4px;padding:6px 10px}
+  header.bar h1{font-size:14px}
+  header.bar .hbtns{display:flex;flex-wrap:nowrap!important;overflow-x:auto;max-width:100%;min-width:0;width:100%;gap:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  header.bar .hbtns button{flex:none;white-space:nowrap;padding:6px 10px;font-size:13px;min-height:34px}
+}
+
+/* ===== phones and small screens ===== */
+.viewSwitch{display:none}
+@media (max-width:900px){
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .viewSwitch{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:35;gap:8px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line-c)}
+  .viewSwitch button{flex:1;min-height:46px;border-radius:10px;border:1px solid var(--line-c);background:var(--bg);color:var(--ink);font-weight:700;font-size:15px}
+  .viewSwitch button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* hidden but still laid out, so PDF export and printing keep working from the Edit view */
+  body[data-view="edit"] .preview{position:absolute;left:-9999px;top:0;width:900px;height:0;overflow:hidden;visibility:hidden;pointer-events:none}
+  body[data-view="preview"] .form,body[data-view="preview"] .ribbon{display:none}
+  .wrap{padding:10px}
+  .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
+  input,select,textarea,.bodyEd{font-size:16px}                       /* stops iOS zooming into fields */
+  header.bar{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  /* ribbon: one sideways-scrolling row instead of several wrapped rows */
+  .rpanel{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .grp{flex:none}.gi{flex-wrap:nowrap}
+  .carr{min-width:30px}
+  summary{min-height:44px;display:flex;align-items:center}
+  select+input,select+.clsRow{margin-top:8px}
+  .palette{width:min(94vw,330px)}
+  .cmGrid{grid-template-columns:repeat(10,minmax(0,1fr))}
+  button.cmSw{width:100%;height:auto;aspect-ratio:1}
+  dialog{width:min(94vw,540px);padding:14px}
+  .dlgbtns button{flex:1 1 140px}
+}
+/* short screens (phones on their side): compact top bar, ribbon scrolls with the page */
+@media (max-height:500px){
+  header.bar{flex-direction:row!important;align-items:center;flex-wrap:nowrap;padding-top:4px;padding-bottom:4px;gap:10px}
+  header.bar h1{font-size:13px;white-space:nowrap;flex:none}
+  header.bar .hbtns{width:auto!important;flex:1;min-width:0;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}
+  header.bar .hbtns button{flex:none;white-space:nowrap}
+  .ribbon{position:relative;top:auto}
+  .form{max-height:none}
+}
+@media print{.viewSwitch{display:none!important}body{padding-bottom:0!important}}
+@media print{body[data-view] .preview{position:static!important;visibility:visible!important;height:auto!important;width:auto!important;overflow:visible!important;pointer-events:auto!important}body[data-view="preview"] .form,body[data-view="edit"] .form{display:none!important}}
+
+/* keep the invisible colour inputs inside the scrolling ribbon row (they were widening the whole page on phones) */
+.rpanel{position:relative}
+body.pdfBusy .preview{visibility:visible!important}
+
+/* History */
+dialog#histDlg{width:min(94vw,640px);max-height:88vh;display:none;flex-direction:column;padding:16px;background:var(--panel);color:var(--ink);border:1px solid var(--line-c);border-radius:12px}
+dialog#histDlg::backdrop{background:rgba(15,17,21,.6)}
+#histDlg .hSub{color:var(--ink)}
+#histDlg input{color:var(--ink);background:var(--bg)}
+#histDlg input::placeholder{color:var(--mute)}
+dialog#histDlg[open]{display:flex}
+.histHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.histHead h2{margin:0}
+#histQ{width:100%;margin:6px 0 10px}
+.histList{overflow-y:auto;flex:1;min-height:120px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.hItem{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--line-c);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.hMain{min-width:0;flex:1}.hSub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hMeta{font-size:12px;color:var(--mute);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hTag{font-weight:600;padding:1px 6px;border-radius:99px;border:1px solid var(--line-c)}.hTag.pdf{color:var(--accent)}
+.hBtns{display:flex;gap:6px;flex:none}
+@media (max-width:600px){.hItem{flex-direction:column;align-items:stretch}.hBtns{width:100%}.hBtns button{flex:1}}
+.viewSwitch #histBtn2{flex:0 0 auto;padding:0 14px}
+
+/* ===== hardening: very narrow phones (Galaxy Fold 280 px), tablets, bottom bar ===== */
+.wrap,.form,.preview{min-width:0}
+.form input,.form select,.form textarea,.form .bodyEd{max-width:100%;min-width:0}
+@media (max-width:900px){
+  header.bar{flex-direction:column;align-items:stretch;gap:4px;padding:6px 10px}
+  header.bar .hbtns{display:flex;flex-wrap:nowrap!important;overflow-x:auto;max-width:100%;min-width:0;width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  header.bar .hbtns button{flex:none;white-space:nowrap;padding:6px 12px;font-size:14px;min-height:36px}
+  .viewSwitch button{white-space:nowrap;min-width:0;padding:0 6px;font-size:14px;overflow:hidden;text-overflow:ellipsis}
+  .viewSwitch #histBtn2{flex:1}
+}
+@media (max-width:359px){
+  .viewSwitch{gap:6px;padding-left:6px;padding-right:6px}
+  .viewSwitch button{font-size:13px;padding:0 4px}
+  .viewSwitch .ic{display:none}
+  .wrap{padding:6px}
+}
+@media (max-height:500px){ header.bar{flex-direction:row!important} }
+
+/* History in dark mode: light text on dark cards, readable badges */
+:root[data-theme="dark"] .hTag.pdf{color:#a5b8ff;border-color:#4b5fa8}
+:root[data-theme="dark"] .hItem{background:#171a21;border-color:#3a4150}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hTag.pdf{color:#a5b8ff;border-color:#4b5fa8}:root:not([data-theme="light"]) .hItem{background:#171a21;border-color:#3a4150}}

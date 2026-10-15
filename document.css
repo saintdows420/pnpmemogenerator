@@ -1,0 +1,84 @@
+/* ===== The memorandum itself. Shared by the live preview, browser print and PDF. =====
+   Measured from UpdatedMemorandumTemplate.docx (Letter, 1in margins, header/footer 0.1in from the edges).
+   One layout engine (the browser's) is used for every output, so what you see is what prints. */
+.sheet{
+  --pw:8.5in;--ph:11in;            /* paper size (overridden per document) */
+  --line:12.65pt;                   /* one single-spaced line of 11 pt Arial (as Word) */
+  --mx:1in;                         /* left/right page margin */
+  --fh:173.4pt;                     /* bottom of the page kept for the seal, motto, classification and security advice */
+  width:var(--pw);margin:0 auto;color:#000;font:11pt/var(--line) Arial,Helvetica,sans-serif;
+}
+.sheet.meas{position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none;zoom:1!important}
+/* One .pg per printed page: letterhead, a window onto the continuous text, footer. Text is cut only between lines. */
+.pg{position:relative;box-sizing:border-box;width:var(--pw);height:calc(var(--ph) - 1px);margin:0 auto 14px;display:flex;flex-direction:column;background:#fff;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.hdw{flex:none;padding:7.2pt var(--mx) 0}
+.win{flex:1;min-height:0;padding:0 var(--mx);overflow:hidden}
+.clip{position:relative;overflow:hidden}
+.flow{width:calc(var(--pw) - 2*var(--mx))}
+.pg .flow{position:absolute;left:0;width:100%}
+.ftw{flex:none;height:var(--fh);padding:0 0 42.15pt;display:flex;flex-direction:column;justify-content:flex-end}
+
+/* header: line sizes and the two logos' size and position come straight from the template */
+.hd{text-align:center;font-size:11pt}
+.hd p{margin:0;line-height:14.5pt}
+.hd .sm{font-size:10pt;line-height:13.2pt}
+.hd .bold{font-weight:bold}
+.hd .hsp{height:31.8pt}
+.hd .hend{height:14.5pt}
+.hdw img.l{position:absolute;left:45.75pt;top:42.6pt;width:57.6pt;height:79.8pt}
+.hdw img.r{position:absolute;right:30.75pt;top:40.77pt;width:72pt;height:87.8pt}
+/* footer: seal, motto, classification (only here), security advice */
+.ft{text-align:center}
+.ft .seal{width:91.13pt;height:85.68pt;display:block;margin:0 auto -2.6pt}
+.ft .tag{font-style:italic;line-height:14.5pt}
+.ft .cls{font-weight:bold;line-height:14.5pt;color:#0000ff}   /* classification: blue, footer only */
+.ft .adv{font-size:8pt;line-height:9.2pt;text-align:left;margin:0 66.65pt 0 75.85pt}
+
+/* memorandum block: label 0.25in in, colon at 1.04in, value at 1.21in, a blank line between rows */
+.t{font-weight:bold;margin:0 0 var(--line)}
+.row{display:flex;margin:0 0 var(--line) 18.35pt;break-inside:avoid}
+.row .k{width:56.7pt;flex:none}
+.row .v{flex:1;display:flex;min-width:0}
+.row .c{flex:none;width:12.23pt}
+.row .vv{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.row .v .b{font-weight:bold}
+.attn{padding-left:0}   /* the optional line sits exactly under the name */
+.rule{height:1.5pt;border-bottom:2.25pt double #000;margin:0 0 var(--line)}
+
+/* body */
+/* body: the first line of each paragraph is indented 0.5in (under the T of "DATE"), as in the template */
+.body{margin-left:0;text-indent:.5in;white-space:pre-wrap;overflow-wrap:anywhere;orphans:2;widows:2}
+.body ul,.body ol{margin-left:.5in}
+.body li,.body ul,.body ol,.body table{text-indent:0}
+.body table{border-collapse:collapse;width:100%;table-layout:fixed;margin:2px 0}
+.body tr{break-inside:avoid}
+.body td,.body th{border:1px solid #000;padding:3px 5px;vertical-align:top;overflow-wrap:anywhere}
+.body [style*="vertical-align: sub"],.body [style*="vertical-align: super"],.bodyEd [style*="vertical-align: sub"],.bodyEd [style*="vertical-align: super"]{font-size:.75em;line-height:0}
+.body img,.bodyEd img{display:block;height:auto;max-width:100%;margin:6px auto;break-inside:avoid}
+.body img[data-align=left],.bodyEd img[data-align=left]{margin-left:0;margin-right:auto}
+.body img[data-align=right],.bodyEd img[data-align=right]{margin-left:auto;margin-right:0}
+
+/* signatory: four blank lines after the last body line, kept together and with the text before it */
+.keep{break-inside:avoid}
+.sigblock{display:block;width:max-content;max-width:100%;margin:calc(var(--line)*4) 0 0 auto;text-align:center;text-indent:0;font:12pt/13.8pt Arial,Helvetica,sans-serif;break-inside:avoid;break-before:avoid;white-space:pre-wrap;overflow-wrap:anywhere}
+.sigblock b{display:block;font-weight:bold;text-transform:uppercase}   /* name: Arial 12 pt, bold, capitals */
+.sigblock span{font-weight:normal;text-transform:none}   /* rank: Arial 12 pt, regular, as typed */
+.sigblock[hidden]{display:none}
+
+/* touch devices: bigger tap targets, no double-tap zoom delay, smooth side-scrolling toolbars */
+@media (pointer:coarse){button,select,input:not([type=color]):not([type=range]){min-height:40px}.rb{min-width:38px;min-height:38px}}
+button,select,.rb{touch-action:manipulation}
+body{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+.rpanel,.rtabs{-webkit-overflow-scrolling:touch}
+header.bar .hbtns{flex-wrap:wrap;gap:6px}
+dialog{max-height:90vh;overflow:auto}
+@media print{
+  @page{margin:0}
+  html,body{background:#fff!important;margin:0!important;padding:0!important}
+  header.bar,.form,.ribbon,.toast,#loginBox,.noprint,.meas{display:none!important}
+  .wrap{display:block!important;padding:0!important;max-width:none!important;margin:0!important}
+  .preview{overflow:visible!important;padding:0!important}
+  .sheet{zoom:1!important;margin:0!important}
+  .pg{box-shadow:none!important;margin:0!important;break-after:page;break-inside:avoid}
+  .pg:last-child{break-after:auto}
+}
